@@ -1,17 +1,32 @@
 # 🧠 Neo4j-Powered Knowledge Graph with LlamaIndex RAG, LangGraph Agents & Real-Time Voice Bot
 
-A scalable and modular LLM-based system combining **Neo4j**, **LlamaIndex**, **LangGraph**, and a **FastAPI voice bot** for intelligent, real-time interactions via audio.
+A scalable, intelligent LLM-based system combining **Neo4j**, **LlamaIndex**, **LangGraph**, and a **FastAPI voice bot** for real-time knowledge retrieval and conversation from voice input.
 
 ---
 
-## 📌 Project Goals
+## ✅ Project Summary
 
-- Structure and store knowledge in a **Neo4j graph database**.
-- Enable **semantic and graph-aware retrieval** using **LlamaIndex**.
-- Integrate **LangGraph** for multi-agent reasoning and workflow orchestration.
-- Build a real-time **audio-based interface** with bot response capabilities.
-- Use **silence detection** and **noise filtering** to control when the bot responds.
-- Ensure **production-readiness** with modular architecture and async components.
+- ✅ Created **Knowledge Graph** in Neo4j to represent domain knowledge.
+- ✅ Developed a **RAG agent** to query the KG using natural language via LlamaIndex.
+- ✅ Implemented **WebSocket-based call system**, where the **bot joins** an audio channel upon trigger (not directly called).
+- ✅ Built a **real-time audio interface** using browser and FastAPI.
+- ✅ Added **speech-to-text transcription** using Whisper.
+- ✅ Integrated **silence detection** and **noise filtering** to prevent unnecessary responses.
+- ✅ Bot **decodes user speech**, queries the graph, and **responds intelligently** using LLMs.
+
+---
+
+## 🧱 Tech Stack
+
+| Component         | Role                                                  |
+|-------------------|-------------------------------------------------------|
+| **Neo4j**         | Structured graph database                             |
+| **LlamaIndex**    | Graph-aware RAG (retrieval-augmented generation)      |
+| **LangGraph**     | Multi-agent orchestration and reasoning logic         |
+| **OpenAI / Azure**| Backend LLMs like GPT-4 / GPT-4o / GPT-4-turbo        |
+| **FastAPI**       | WebSocket server, API endpoints                       |
+| **Whisper**       | Real-time transcription of user audio                 |
+| **HTML + JS**     | Frontend with audio streaming support                 |
 
 ---
 
@@ -19,21 +34,23 @@ A scalable and modular LLM-based system combining **Neo4j**, **LlamaIndex**, **L
 
 ```bash
 .
-├── audio/                        # Audio processing utilities or samples
-├── data/                         # Source datasets for KG population        
-├── rag/                          # RAG logic and knowledge graph integration
-├── recordings/                   # Saved user call recordings
+├── audio/                        # Audio helpers or processing
+├── data/                         # Datasets (e.g., healthcare_dataset.csv)
+├── interface/
+│   └── websocket.py
+├── rag/   
+│   └── neo4j.py                  # RAG logic and agents
 ├── static/
-│   └── index.html                # Frontend interface (WebRTC-based)
+│   └── index.html                # Web interface for call
 ├── transcription/
-│   └── transcriber.py           # Real-time audio transcription & silence detection
+│   └── transcriber.py           # Transcribes and filters incoming audio
 ├── utils/
-│   └── config.py                 # Loads `.env` and shared constants
-├── .env                          # Environment variables (Neo4j, API keys, etc.)
+│   └── logger.py           
+├── .env                          # Env config (keys, URIs)
 ├── .gitignore
-├── audio.py                      # Audio-related helper logic
-├── bot.py                        # Bot logic (connects to calls, responds intelligently)
-├── config.py                     # Central config loader
-├── main.py                       # FastAPI app with WebSocket & routing logic
+├── audio.py                      # Handles audio input/output
+├── bot.py                        # Bot logic (join, listen, respond)
+├── config.py                     # App-level configs
+├── main.py                       # FastAPI app entry point
 ├── README.md
-└── upload_data.py                # Script to upload data into Neo4j
+└── upload_data.py                # Load CSV data to Neo4j
