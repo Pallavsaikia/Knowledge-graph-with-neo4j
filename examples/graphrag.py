@@ -119,7 +119,6 @@ class Neo4jQueryEngine:
         2. Use LIMIT 10 for queries that might return many results
         3. Make sure the query is syntactically correct
         4. Use MATCH, RETURN, WHERE clauses appropriately
-        
         Cypher Query:
         """
         
