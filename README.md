@@ -1,43 +1,39 @@
-# 🧠 Neo4j-Powered Knowledge Graph with LlamaIndex RAG & LangGraph Agents
+# 🧠 Neo4j-Powered Knowledge Graph with LlamaIndex RAG, LangGraph Agents & Real-Time Voice Bot
 
-A scalable and intelligent pipeline for building **LLM applications** powered by a **Neo4j knowledge graph**, **LlamaIndex** for RAG, and **LangGraph** for agent-based orchestration.
+A scalable and modular LLM-based system combining **Neo4j**, **LlamaIndex**, **LangGraph**, and a **FastAPI voice bot** for intelligent, real-time interactions via audio.
 
 ---
 
 ## 📌 Project Goals
 
-- Use **Neo4j** to structure and query domain knowledge in graph form.
+- Structure and store knowledge in a **Neo4j graph database**.
 - Enable **semantic and graph-aware retrieval** using **LlamaIndex**.
-- Integrate **LangGraph** for multi-agent orchestration and reasoning.
-- Build a flexible and production-ready AI system with memory, tool use, and human-in-the-loop capability.
+- Integrate **LangGraph** for multi-agent reasoning and workflow orchestration.
+- Build a real-time **audio-based interface** with bot response capabilities.
+- Use **silence detection** and **noise filtering** to control when the bot responds.
+- Ensure **production-readiness** with modular architecture and async components.
 
 ---
 
-## 🧱 Tech Stack
-
-| Component        | Role                                             |
-|------------------|--------------------------------------------------|
-| Neo4j            | Graph database for structured knowledge storage |
-| LlamaIndex       | Connects the KG with LLMs for intelligent RAG   |
-| LangGraph        | Agent orchestration for reasoning workflows     |
-| OpenAI / Azure   | Backend LLMs (e.g. GPT-4, GPT-4o, GPT-4-turbo)   |
-| Python + FastAPI | Core implementation and API integration         |
-
----
-
-## 🗂 Project Structure
+## 🗂️ Project Structure
 
 ```bash
 .
-├── data/
-│   └── healthcare_dataset.csv
-├── graph/
-│   └── neo4j_loader.py        # Loads CSV into Neo4j
-├── llm/
-│   ├── llamaindex_rag.py      # RAG pipeline using LlamaIndex + Neo4j
-│   └── langgraph_agents.py    # LangGraph workflow logic
+├── audio/                        # Audio processing utilities or samples
+├── data/                         # Source datasets for KG population        
+├── rag/                          # RAG logic and knowledge graph integration
+├── recordings/                   # Saved user call recordings
+├── static/
+│   └── index.html                # Frontend interface (WebRTC-based)
+├── transcription/
+│   └── transcriber.py           # Real-time audio transcription & silence detection
 ├── utils/
-│   └── config.py              # Load .env and shared configs
-├── .env
-├── requirements.txt
-└── README.md
+│   └── config.py                 # Loads `.env` and shared constants
+├── .env                          # Environment variables (Neo4j, API keys, etc.)
+├── .gitignore
+├── audio.py                      # Audio-related helper logic
+├── bot.py                        # Bot logic (connects to calls, responds intelligently)
+├── config.py                     # Central config loader
+├── main.py                       # FastAPI app with WebSocket & routing logic
+├── README.md
+└── upload_data.py                # Script to upload data into Neo4j
