@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head><title>Live Audio Call with Bot</title></head>
+<body>
+  <h1>Audio Call</h1>
+  <label>Call ID: <input id="callId" value="testcall"/></label>
+  <button onclick="startCall()">Join Call</button>
+
+  <h3>Bot Messages:</h3>
+  <div id="botMessages" style="border:1px solid black; height: 150px; overflow-y: auto;"></div>
+
+  <script>
+  let ws;
+  let audioContext;
+  let source;
+  let processor;
+  let playingAudioContext;
+
+  async function startCall() {
+    const callId = document.getElementById("callId").value;
+
+    // Call /join endpoint before opening WebSocket
+    try {
+      const response = await fetch("http://localhost:9000/join", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ room_id: callId }),
+      });
+
+      if (!response.ok) {
+        alert("Failed to join room: " + response.statusText);
+        return;
+      }
+    } catch (err) {
+      alert("Error joining room: " + err.message);
+      return;
+    }
+
+    // Now open the WebSocket connection
+    ws = new WebSocket(`ws://localhost:8080/ws?room=${callId}`);
+    ws.binaryType = "arraybuffer";
+
+    ws.onmessage = function(event) {
+      if (typeof event.data === "string") {
+        // Text message from bot
+        document.getElementById("botMessages").innerHTML += `<p>${event.data}</p>`;
+      } else {
+        // Audio data from bot
+        playAudio(event.data);
+      }
+    };
+
+    ws.onopen = () => {
+      console.log("WebSocket connection opened");
+    };
+
+    ws.onclose = () => {
+      console.log("WebSocket connection closed");
+    };
+
+    // Setup audio capture and send audio chunks via WebSocket
+    audioContext = new AudioContext();
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      source = audioContext.createMediaStreamSource(stream);
+      processor = audioContext.createScriptProcessor(4096, 1, 1);
+
+      source.connect(processor);
+      processor.connect(audioContext.destination);
+
+      processor.onaudioprocess = function(e) {
+        const inputData = e.inputBuffer.getChannelData(0);
+        const int16Data = convertFloat32ToInt16(inputData);
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(int16Data.buffer);
+        }
+      };
+    } catch (err) {
+      alert("Error accessing microphone: " + err.message);
+    }
+  }
+
+  function convertFloat32ToInt16(buffer) {
+    const l = buffer.length;
+    const int16Buffer = new Int16Array(l);
+    for (let i = 0; i < l; i++) {
+      let s = Math.max(-1, Math.min(1, buffer[i]));
+      int16Buffer[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+    }
+    return int16Buffer;
+  }
+
+  function playAudio(arrayBuffer) {
+    if (!playingAudioContext) {
+      playingAudioContext = new AudioContext();
+    }
+    playingAudioContext.decodeAudioData(arrayBuffer, (buffer) => {
+      const sourceNode = playingAudioContext.createBufferSource();
+      sourceNode.buffer = buffer;
+      sourceNode.connect(playingAudioContext.destination);
+      sourceNode.start(0);
+    }, (error) => {
+      console.error("Audio decode error:", error);
+    });
+  }
+</script>
+
+</body>
+</html>

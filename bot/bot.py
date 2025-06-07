@@ -6,6 +6,7 @@ import io
 import soundfile as sf
 import sounddevice as sd
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from scipy.signal import resample_poly
 import os
@@ -19,7 +20,13 @@ from text_to_audio.generator import GTTSService
 
 # ---------- Setup ----------
 app = FastAPI()
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # or specify origins like ["http://localhost:8000"]
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 model = WhisperModel("base", compute_type="int8", device="cpu")
 audio_buffer = bytearray()
 os.makedirs("audio", exist_ok=True)
@@ -32,14 +39,14 @@ tts_service = GTTSService()
 @app.post("/join")
 async def join_call(request: Request):
     data = await request.json()
-    call_id = data["call_id"]
+    call_id = data["room_id"]
     print(f"[BOT] Received join request for call_id: {call_id}")
     asyncio.create_task(bot_join_call(call_id))
     return {"status": "bot joining"}
 
 
 async def bot_join_call(call_id: str):
-    uri = f"ws://localhost:8000/ws/{call_id}"
+    uri = f"ws://localhost:8080/ws?room={call_id}"
     print(f"[BOT] Connecting to {uri}")
     async with websockets.connect(uri) as websocket:
         print("[BOT] Connected, listening for audio...")
