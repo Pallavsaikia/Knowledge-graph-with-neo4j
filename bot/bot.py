@@ -15,8 +15,8 @@ import uuid
 
 from rag.neo4j import Neo4jQueryEngine
 from gtts import gTTS
-from text_to_audio.generator import GTTSService
-
+from text_to_audio.generator import GTTSService,TTSCache
+import random
 
 # ---------- Setup ----------
 app = FastAPI()
@@ -34,7 +34,8 @@ os.makedirs("audio", exist_ok=True)
 Neo4jQueryEngine.setup_llm()
 query_engine = Neo4jQueryEngine()
 tts_service = GTTSService()
-
+tts_cache = TTSCache(tts_service)
+WAIT_TEXT=["Just a sec.","Uhmm give me a sec","Please be on line"]
 
 @app.post("/join")
 async def join_call(request: Request):
@@ -123,6 +124,9 @@ async def transcribe_and_respond(buffer: bytearray, target_sample_rate, up, down
     text = "".join(segment.text for segment in segments).strip()
 
     if text:
+        tts_cache = TTSCache(tts_service)
+        wait_audio = tts_cache.get_audio_bytes(random.choice(WAIT_TEXT))
+        await websocket.send(wait_audio)
         print(f"[BOT] Transcription result: {text}")
         response = query_engine.query(text)
         print(f"\n[BOT] Response: {response}")
